@@ -1,0 +1,46 @@
+{
+    "keyFrames" :[
+        {
+            "action" : 0,
+            "type" : 2,
+            "name" : "小鸟",
+            "timestamp" : 1.500,
+            "startpos" : [0, 1, 0],
+            "endpos" : [0, 1, 0],
+            "startrotation" : [0, 0, 0],
+            "endrotation" : [0, 0, 0],
+            "startscale" : [1, 1, 1],
+            "endscale" : [1, 1, 1],
+            "duration" : 0,
+            "animation" : ""
+        },
+        {
+            "action" : 2,
+            "type" : 1,
+            "name" : "小鸟",
+            "timestamp" : 2.500,
+            "startpos" : [0, 1, 0],
+            "endpos" : [-2, 1, 0],
+            "startrotation" : [0, 0, 0],
+            "endrotation" : [0, 0, 0],
+            "startscale" : [1, 1, 1],
+            "endscale" : [1, 1, 1],
+            "duration" : 2,
+            "animation" : ""
+        },
+        {
+            "action" : 1,
+            "type" : 1,
+            "name" : "小鸟",
+            "timestamp" : 5.0,
+            "startpos" : [-2, 1, 0],
+            "endpos" : [-2, 1, 0],
+            "startrotation" : [0, 0, 0],
+            "endrotation" : [0, 0, 0],
+            "startscale" : [1, 1, 1],
+            "endscale" : [1, 1, 1],
+            "duration" : 0,
+            "animation" : ""
+        }
+    ]
+}
