@@ -8,7 +8,7 @@ namespace AnimGenerator
     internal class KeyFrame
     {
         /// <summary>
-        /// 0 出现，1 消失，2 移动，3 音频播放和停止，4 背景图切换
+        /// 0 出现，1 消失，2 移动，3 音频播放和停止，4 背景图切换，5字幕切换
         /// </summary>
         public int action;
 
@@ -21,6 +21,7 @@ namespace AnimGenerator
         /// action == 0 or 1 or 2 时，用以索引物体的名字
         /// action == 3 时，指示要播放的音频在 Resources 文件夹下的路径，不包含后缀名
         /// action == 4 时，指示要切换的图片在 Resources 文件夹下的路径，不包含后缀名
+        /// action == 5 时，指示字幕的内容
         /// </summary>
         public string name;
 
@@ -30,7 +31,12 @@ namespace AnimGenerator
         public float timestamp;
 
         // 下列为物体在变化过程中的位置、旋转和缩放。其中 action == 1 时，仅 startxxx 有意义；action == 2 时都有意义。
-        public List<float> startpos; // 2D 模型下，z 轴指示物体前后关系， 背景板的 z 值为 10，相机位置为 -10，指向 z 轴正方向
+        // 2D 模式：
+        //       摄像机正交投影，z 轴指示物体前后关系。背景图片 z 坐标为 10，摄像机 z 坐标为 -10，观察方向为 z 轴正方向，物体的 z 坐标越大，越靠后。
+        //       画面左下角在 xy 平面的投影为 (-16, -9)，画面右上角在 xy 平面的投影为 (16, 9)
+        // 3D 模式：
+        //       请将摄像机切换到透视投影，摄像机位置为 (0, 0, -10)，观察方向为 (0, 0, 1)
+        public List<float> startpos; 
         public List<float> endpos;
         public List<float> startrotation;
         public List<float> endrotation;
@@ -38,17 +44,20 @@ namespace AnimGenerator
         public List<float> endscale;
 
         /// <summary>
-        /// 该动作的持续时间，仅在 action == 2时有意义。
+        /// 该动作的持续时间，在 action == 2/3/5 时有意义。
         /// </summary>
         public float duration;
 
         /// <summary>
-        /// 2D指示播放动画的名字，3D指示要设置的状态机bool值
+        /// 2D 模式下指示播放动画的名字，3D 模式下指示要设置的状态机 trigger 名称
         /// </summary>
         public string animation;
 
         /// <summary>
-        /// 动画（action == 2）或音频（action == 3）的循环次数，-1表示无限循环
+        /// 动画（action == 2）或音频（action == 3）的循环方式
+        /// >0 时为循环次数，
+        /// =0 时，若 action == 2 无意义，action == 3 表示音频播放时长跟随 duration 字段
+        /// =-1 时表示无限循环
         /// </summary>
         public int loop;
 
@@ -87,6 +96,7 @@ namespace AnimGenerator
         private Vector3 _startscale;
         private Vector3 _endscale;
 
+        // 访问 keyframe 的下列字段时，请使用下列访问器，避免数据被多次构造
         public Vector3 StartPosition
         {
             get

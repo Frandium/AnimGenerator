@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using DragonBones;
+using UnityEngine.UI;
 
 namespace AnimGenerator
 {
@@ -28,15 +29,16 @@ namespace AnimGenerator
         Dictionary<string, GameObject> gos = new Dictionary<string, GameObject>();
 
         [Header("预制的一系列角色")]
-        public GameObject stuff;
-        public GameObject human;
-        public GameObject flying;
-        public GameObject creeping;
+        public GameObject stuff;  // 静态道具
+        public GameObject human;  // 人
+        public GameObject flying; // 飞行动物
+        public GameObject creeping; // 四脚爬行动物
 
-        [Header("直接索引的物体或资产")]
+        [Header("直接索引的场景中的物体或资产")]
         public GameObject audioContainer;
         public Material bkgmat;
-        
+        public Text subtitle;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -45,9 +47,11 @@ namespace AnimGenerator
             int len = (int)jsonfile.Length;
             byte[] bytes = new byte[len];
             jsonfile.Read(bytes, 0, len);
+
+            // 输入的 json 文件使用 UTF-8 编码
             string jsonstring = System.Text.Encoding.UTF8.GetString(bytes);
             keyFrameList = JsonUtility.FromJson<KeyFrameList>(jsonstring);
-            if(keyFrameList == null)
+            if (keyFrameList == null)
             {
                 Debug.LogError("Unexpected json string.");
             }
@@ -63,10 +67,9 @@ namespace AnimGenerator
         /// </summary>
         private int i = 0;
 
-
         void Update()
         {
-            while(i<keyFrameList.keyFrames.Count && Time.time > keyFrameList.keyFrames[i].timestamp)
+            while (i < keyFrameList.keyFrames.Count && Time.time > keyFrameList.keyFrames[i].timestamp)
             {
                 KeyFrame frame = keyFrameList.keyFrames[i];
                 switch (frame.action)
@@ -74,17 +77,23 @@ namespace AnimGenerator
                     case 0: // 出现
                         Appear(frame);
                         break;
-                    case 1:
+                    case 1: // 消失
                         DisAppear(frame);
                         break;
-                    case 2:
+                    case 2: // 移动和动画
                         Move(frame);
                         break;
-                    case 3:
+                    case 3: // 播放音乐
                         Audio(frame);
                         break;
-                    case 4:
+                    case 4: // 更换背景图片
                         Background(frame);
+                        break;
+                    case 5:
+                        ShowSubtitle(frame);
+                        break;
+                    default:
+                        Debug.LogError($"Unexpected action type {frame.action} at timestamp {frame.timestamp}");
                         break;
                 }
                 ++i;
@@ -147,7 +156,7 @@ namespace AnimGenerator
         }
 
 
-        private const bool IS_3D_MODE = false; 
+        private const bool IS_3D_MODE = false;
         private IEnumerator Animate(KeyFrame frame)
         {
             float elapsed = 0;
@@ -165,7 +174,6 @@ namespace AnimGenerator
                 UnityArmatureComponent armatureComp = go.GetComponent<UnityArmatureComponent>();
                 DragonBones.Animation animation = armatureComp.animation;
                 animation.Play(frame.animation, frame.loop);
-
             }
 
             // 插值改变物体 transform
@@ -196,22 +204,24 @@ namespace AnimGenerator
             if (clip == null)
             {
                 Debug.LogError($"Failed to load audio clip {frame.name} at timestamp {frame.timestamp}");
+                yield break;
             }
-            else
-            {
-                GameObject go = Instantiate(audioContainer,Vector3.zero,Quaternion.identity);
-                AudioSource source = go.GetComponent<AudioSource>();
-                source.clip = clip;
-                source.loop = true;
-                source.Play();
-                // 循环播放，等待【循环次数 × 单次时长】后销毁此声源以实现次数播放效果
-                if (frame.loop != -1)
-                {
-                    yield return new WaitForSeconds(clip.length * frame.loop);
-                    source.Stop();
-                    Destroy(go);
-                }
-            }
+
+            // 先实例化一个声源，循环播放音频
+            GameObject go = Instantiate(audioContainer, Vector3.zero, Quaternion.identity);
+            AudioSource source = go.GetComponent<AudioSource>();
+            source.clip = clip;
+            source.loop = true;
+            source.Play();
+
+            // 如果是循环模式是 -1，直接结束
+            if (frame.loop == -1)
+                yield break;
+
+            // 否则等待对应时间后销毁声源
+            yield return new WaitForSeconds(frame.loop == 0 ? frame.duration : clip.length * frame.loop);
+            source.Stop();
+            Destroy(go);
         }
 
         private void Background(KeyFrame frame)
@@ -220,13 +230,22 @@ namespace AnimGenerator
             if(newtex == null)
             {
                 Debug.LogError($"Failed to load texture {frame.name} at timestamp {frame.timestamp}.");
+                return;
             }
             bkgmat.SetTexture("_MainTex", newtex);
         }
 
+        private void ShowSubtitle(KeyFrame frame)
+        {
+            subtitle.text = frame.name;
+            StartCoroutine(WaitToEndSubtitle(frame.duration));
+        }
 
-        
-
+        private IEnumerator WaitToEndSubtitle(float time)
+        {
+            yield return new WaitForSeconds(time);
+            subtitle.text = string.Empty;
+        }
 
 //        public Texture2D testTexture;
 //        private GameObject GenerateDragonbones(GameObject go)

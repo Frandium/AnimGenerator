@@ -2,9 +2,9 @@
 见 Scripts/keyframe.cs 中的注释。
 
 # 2D模型与动画
-* **模型导出** 模型导出 2D 模型基于 DragonBones 动画插件，在 Dragonbones 软件中导出 xxx_ske.json、xxx_tex.json、xxx_tex.png 三份文件。
+* **模型导出** 模型导出 2D 模型基于 DragonBones 动画插件，在 Dragonbones 软件中导出 xxx_ske.json、xxx_tex.json、xxx_tex.png 三份文件。创建新文件夹 Resources/xxx 并将导出的文件存放在其中。
 
-* **创建 prefab** 搭建 prefab 在场景中创建 DragonBones Gameobject，基于 xxx_ske.json 创建物体的 Dragonbones Data，将 data 赋给创建的 DragonBones Gameobject，插件会生成静态的游戏物体。直接将其保存为 prefab 即可。2D 模型目前仅能静态加载，动态加载还在研究中。
+* **创建 prefab** 在场景中创建 DragonBones Gameobject，基于 xxx_ske.json 创建物体的 Dragonbones Data，将 data 赋给创建的 DragonBones Gameobject，插件会生成静态的游戏物体。直接将其保存为 prefab 即可。2D 模型目前仅能静态加载，动态加载还在研究中。
 
 # 3D模型与动画
 * **模型导出** 3D 模型建议的导出格式为 .fbx，其中应当包含模型的 mesh、bones、animation、avatar（人形模型，若有）。需要注意的是，Unity 默认左手坐标系，Blender 默认右手坐标系，其他建模软件如果同样存在该问题，导出时请注意调整坐标。
