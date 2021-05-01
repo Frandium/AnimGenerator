@@ -12,7 +12,7 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 0,
-            "animation" : "",
+            "content" : "",
             "loop" : 0
         },
         {
@@ -27,7 +27,22 @@
             "startscale" : [1, 1, 1],
             "endscale" : [2, 2, 2],
             "duration" : 2,
-            "animation" : "birdfly",
+            "content" : "birdfly",
+            "loop" : 1
+        },
+        {
+            "action" : 6,
+            "type" : 1,
+            "name" : "tree",
+            "timestamp" : 2.500,
+            "startpos" : [0.0, 0.0, 0],
+            "endpos" : [5, 5, 0],
+            "startrotation" : [0, 0, 0],
+            "endrotation" : [0, 0, 0],
+            "startscale" : [1, 1, 1],
+            "endscale" : [2, 2, 2],
+            "duration" : 2,
+            "content" : "说两句台词吧！",
             "loop" : 1
         },
         {
@@ -42,7 +57,7 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 0,
-            "animation" : "",
+            "content" : "",
             "loop" : 0
         },
         {
@@ -57,7 +72,7 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 0,
-            "animation" : "",
+            "content" : "",
             "loop" : -1
         },
         {
@@ -72,13 +87,13 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 0,
-            "animation" : "",
+            "content" : "",
             "loop" : -1
         },
         {
             "action" : 5,
             "type" : 1,
-            "name" : "测试字幕，使用 UTF-8 编码以正确显示各种语言",
+            "name" : "",
             "timestamp" : 1,
             "startpos" : [0.5, 0.5, 0.5],
             "endpos" : [0.5, 0.5, 0.5],
@@ -87,13 +102,13 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 1.4,
-            "animation" : "",
+            "content" : "测试字幕，使用 UTF-8 编码以正确显示各种语言",
             "loop" : -1
         },
         {
             "action" : 5,
             "type" : 1,
-            "name" : "test subtitle，use UTF-8 to display all kinds of languages",
+            "name" : "",
             "timestamp" : 2.5,
             "startpos" : [0.5, 0.5, 0.5],
             "endpos" : [0.5, 0.5, 0.5],
@@ -102,13 +117,13 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 1.4,
-            "animation" : "",
+            "content" : "test subtitle，use UTF-8 to display all kinds of languages",
             "loop" : -1
         },
         {
             "action" : 5,
             "type" : 0,
-            "name" : "テストサブタイトル、UTF-8を使用して各種の文字を正しく表示します。",
+            "name" : "",
             "timestamp" : 4,
             "startpos" : [0.5, 0.5, 0.5],
             "endpos" : [0.5, 0.5, 0.5],
@@ -117,7 +132,7 @@
             "startscale" : [1, 1, 1],
             "endscale" : [1, 1, 1],
             "duration" : 1.4,
-            "animation" : "",
+            "content" : "テストサブタイトル、UTF-8を使用して各種の文字を正しく表示します。",
             "loop" : -1
         }
     ]

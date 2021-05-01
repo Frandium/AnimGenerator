@@ -23,16 +23,35 @@ namespace AnimGenerator
         /// </summary>
         private const string JSON_FILE_NAME = "/KeyFrames.json";
 
+        // 2D 下的场景边界
+        private const float MIN_X_2D = -16;
+        private const float MIN_Y_2D = -9;
+        private const float MAX_X_2D = 16;
+        private const float MAX_Y_2D = 9;
+
+        // 对话气泡的高度
+        private const float DIALOG_HEIGHT = .3f;
+
+        // 各类形象的尺寸
+        private const float FLYING_HEIGHT = .4f;
+        private const float FLYING_WIDTH = .2f;
+
         /// <summary>
         /// 用以索引场景中的所有 GameObject
         /// </summary>
         Dictionary<string, GameObject> gos = new Dictionary<string, GameObject>();
+
+        /// <summary>
+        /// 用以索引场景中 GameObject 的对话框
+        /// </summary>
+        Dictionary<string, GameObject> dialogs = new Dictionary<string, GameObject>();
 
         [Header("预制的一系列角色")]
         public GameObject stuff;  // 静态道具
         public GameObject human;  // 人
         public GameObject flying; // 飞行动物
         public GameObject creeping; // 四脚爬行动物
+        public GameObject dialog;
 
         [Header("直接索引的场景中的物体或资产")]
         public GameObject audioContainer;
@@ -92,6 +111,9 @@ namespace AnimGenerator
                     case 5:
                         ShowSubtitle(frame);
                         break;
+                    case 6:
+                        ShowDialog(frame);
+                        break;
                     default:
                         Debug.LogError($"Unexpected action type {frame.action} at timestamp {frame.timestamp}");
                         break;
@@ -130,8 +152,19 @@ namespace AnimGenerator
                     break;
             }
             GameObject go = Instantiate(tobeinstantiate, frame.StartPosition, frame.StartRotation);
+            GameObject dia = Instantiate(dialog, GameObject.Find("Canvas").transform);
+            UpdateDialogPos(frame.StartPosition, dia.GetComponent<RectTransform>());
+            dia.SetActive(false);
             go.transform.localScale = frame.StartScale;
             gos[frame.name] = go;
+            dialogs[frame.name] = dia;
+        }
+
+        private void UpdateDialogPos(Vector3 pos, RectTransform trans)
+        {
+            Vector2 anchor = new Vector2((pos.x - MIN_X_2D) / (MAX_X_2D - MIN_X_2D), (pos.y - MIN_Y_2D) / (MAX_Y_2D - MIN_Y_2D));
+            trans.anchorMin = anchor + new Vector2(-FLYING_WIDTH / 2, FLYING_HEIGHT / 2);
+            trans.anchorMax = anchor + new Vector2(FLYING_WIDTH / 2, FLYING_HEIGHT / 2 + DIALOG_HEIGHT);
         }
 
         private void DisAppear(KeyFrame frame)
@@ -142,7 +175,9 @@ namespace AnimGenerator
                 return;
             }
             Destroy(gos[frame.name]);
+            Destroy(dialogs[frame.name]);
             gos.Remove(frame.name);
+            dialogs.Remove(frame.name);
         }
 
         private void Move(KeyFrame frame)
@@ -161,6 +196,7 @@ namespace AnimGenerator
         {
             float elapsed = 0;
             GameObject go = gos[frame.name];
+            RectTransform rectTransform = dialogs[frame.name].GetComponent<RectTransform>();
 
             if (IS_3D_MODE)
             {
@@ -174,12 +210,12 @@ namespace AnimGenerator
                 UnityArmatureComponent armatureComp = go.GetComponent<UnityArmatureComponent>();
                 DragonBones.Animation animation = armatureComp.animation;
                 Dictionary<string, AnimationData> animations = animation.animations;
-                float length = animations[frame.animation].duration;
+                float length = animations[frame.content].duration;
                 if (frame.loop > 0)
                     animation.timeScale = length / (frame.duration / frame.loop);
                 else
                     animation.timeScale = 1;
-                animation.Play(frame.animation, frame.loop);
+                animation.Play(frame.content, frame.loop);
             }
 
             // 插值改变物体 transform
@@ -194,6 +230,10 @@ namespace AnimGenerator
                     LerpUtility.Linear(frame.StartRotation, frame.EndRotation, elapsed / frame.duration)
                     );
                 transform.localScale = LerpUtility.Linear(frame.StartScale, frame.EndScale, elapsed / frame.duration);
+                if (!IS_3D_MODE)
+                {
+                    UpdateDialogPos(transform.position, rectTransform);
+                }
                 elapsed += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
@@ -243,7 +283,7 @@ namespace AnimGenerator
 
         private void ShowSubtitle(KeyFrame frame)
         {
-            subtitle.text = frame.name;
+            subtitle.text = frame.content;
             StartCoroutine(WaitToEndSubtitle(frame.duration));
         }
 
@@ -251,6 +291,25 @@ namespace AnimGenerator
         {
             yield return new WaitForSeconds(time);
             subtitle.text = string.Empty;
+        }
+
+        private void ShowDialog(KeyFrame frame)
+        {
+            if (!dialogs.ContainsKey(frame.name))
+            {
+                Debug.LogError($"Failed to find dialog attached to gameobject {frame.name} at timestamp {frame.timestamp}");
+                return;
+            }
+            StartCoroutine(DisableAfterDialog(frame));
+        }
+
+        private IEnumerator DisableAfterDialog(KeyFrame frame)
+        {
+            GameObject dia = dialogs[frame.name];
+            dia.SetActive(true);
+            dia.GetComponentInChildren<Text>().text = frame.content;
+            yield return new WaitForSeconds(frame.duration);
+            dia.SetActive(false);
         }
 
 //        public Texture2D testTexture;

@@ -8,7 +8,7 @@ namespace AnimGenerator
     internal class KeyFrame
     {
         /// <summary>
-        /// 0 出现，1 消失，2 移动，3 音频播放和停止，4 背景图切换，5字幕切换
+        /// 0 出现，1 消失，2 移动或播放动画，3 音频播放和停止，4 背景图切换，5字幕，6对话框
         /// </summary>
         public int action;
 
@@ -21,7 +21,7 @@ namespace AnimGenerator
         /// action == 0 or 1 or 2 时，用以索引物体的名字
         /// action == 3 时，指示要播放的音频在 Resources 文件夹下的路径，不包含后缀名
         /// action == 4 时，指示要切换的图片在 Resources 文件夹下的路径，不包含后缀名
-        /// action == 5 时，指示字幕的内容
+        /// action == 6 时，指示要显示对话框的角色
         /// </summary>
         public string name;
 
@@ -49,9 +49,10 @@ namespace AnimGenerator
         public float duration;
 
         /// <summary>
-        /// 2D 模式下指示播放动画的名字，3D 模式下指示要设置的状态机 trigger 名称
+        /// action == 2 时，2D 模式下指示播放动画的名字，3D 模式下指示要设置的状态机 trigger 名称
+        /// action == 5 or 6 时，指示字幕或对话框的内容。
         /// </summary>
-        public string animation;
+        public string content;
 
         /// <summary>
         /// 动画（action == 2）或音频（action == 3）的循环方式
@@ -78,7 +79,7 @@ namespace AnimGenerator
             this.startscale = startscale;
             this.endscale = endscale;
             this.duration = duration;
-            this.animation = animation;
+            this.content = animation;
             this.loop = loop;
         }
 
