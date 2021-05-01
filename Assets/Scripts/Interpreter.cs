@@ -173,6 +173,12 @@ namespace AnimGenerator
                 // 播放 DrangonBones 动画
                 UnityArmatureComponent armatureComp = go.GetComponent<UnityArmatureComponent>();
                 DragonBones.Animation animation = armatureComp.animation;
+                Dictionary<string, AnimationData> animations = animation.animations;
+                float length = animations[frame.animation].duration;
+                if (frame.loop > 0)
+                    animation.timeScale = length / (frame.duration / frame.loop);
+                else
+                    animation.timeScale = 1;
                 animation.Play(frame.animation, frame.loop);
             }
 

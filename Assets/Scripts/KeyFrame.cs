@@ -55,9 +55,9 @@ namespace AnimGenerator
 
         /// <summary>
         /// 动画（action == 2）或音频（action == 3）的循环方式
-        /// >0 时为循环次数，
+        /// >0 时为循环次数（与 duration 一起作用可改变动画播放速度），
         /// =0 时，若 action == 2 无意义，action == 3 表示音频播放时长跟随 duration 字段
-        /// =-1 时表示无限循环
+        /// =-1 时以原速度表示无限循环
         /// </summary>
         public int loop;
 
