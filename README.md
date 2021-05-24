@@ -14,3 +14,6 @@
 * **创建动画状态机** 解释器目前在 3D 模式中将读入的 animation 字段解释为 Animator.SetTrigger 的参数，所以建议现阶段先只使用 Trigger 类型的变量配置物体的动画状态机。
 
 * **创建模型材质** 不建议使用建模软件导出的材质，因其编码方式与 Unity 可能有不同。Unity 的 Standard Shader 已经实现了基本的 PBR 流程，调整参数和贴图即可。如果后续需要动态替换功能，建议将可能动态替换的部分作为一个单独的 mesh 设计 uv 和材质，避免使用 atlas 造成贴图替换困难。
+
+# 流式解析json文件
+约定将要流式生成的若干 json 文件名称为 Keyframes0.json，Keyframes1.json...，程序不停地检测 Applacation.StreamingAssets 文件夹下是否有新的 json 文件；若有，则按顺序读入一个尚未被解释的 json 文件，解释执行。重复这一过程。
