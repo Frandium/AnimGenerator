@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AnimGenerator
 {
     /// <summary>
-    /// 插值类，后续可以在此扩展以实现更平滑的自定义插值效果
+    /// 负责插值的类，后续可以在此扩展以实现更平滑的自定义插值效果
     /// </summary>
     public class LerpUtility
     {

@@ -14,6 +14,13 @@ namespace AnimGenerator
         public List<KeyFrame> keyFrames = new List<KeyFrame>();
     }
 
+    public enum EInterpreterMode
+    {
+        Display,
+        Edit,
+        Wait
+    }
+
     public class Interpreter : MonoBehaviour
     {
         KeyFrameList keyFrameList;
@@ -21,7 +28,7 @@ namespace AnimGenerator
         /// <summary>
         /// 加载的json文件名
         /// </summary>
-        private const string JSON_FILE_NAME = "/KeyFrames.json";
+        private const string JSON_FILE_NAME = "KeyFrames";
 
         // 2D 下的场景边界
         private const float MIN_X_2D = -16;
@@ -35,6 +42,12 @@ namespace AnimGenerator
         // 各类形象的尺寸
         private const float FLYING_HEIGHT = .4f;
         private const float FLYING_WIDTH = .2f;
+
+        // 切换展示模式和配置模式
+        private float starttime = 0;
+        private EInterpreterMode interpreterMode = EInterpreterMode.Wait;
+
+        private DirectoryInfo streamingDir;
 
         /// <summary>
         /// 用以索引场景中的所有 GameObject
@@ -61,8 +74,16 @@ namespace AnimGenerator
         // Start is called before the first frame update
         void Start()
         {
+            streamingDir = new DirectoryInfo(Application.streamingAssetsPath);
+        }
+
+        /// <summary>
+        /// 用以从编辑模式切换到展示模式；或等待新的输入。
+        /// </summary>
+        public void StartDisplay(string jsonFileName)
+        {
             // 解析 json 文件并排序
-            FileStream jsonfile = File.OpenRead(Application.streamingAssetsPath + JSON_FILE_NAME);
+            FileStream jsonfile = File.OpenRead(jsonFileName);
             int len = (int)jsonfile.Length;
             byte[] bytes = new byte[len];
             jsonfile.Read(bytes, 0, len);
@@ -79,6 +100,14 @@ namespace AnimGenerator
                 if (k1.timestamp < k2.timestamp) return -1;
                 return 1;
             });
+
+            interpreterMode = EInterpreterMode.Display;
+            starttime = Time.realtimeSinceStartup;
+        }
+
+        public void WaitNewInput()
+        {
+            interpreterMode = EInterpreterMode.Wait;
         }
 
         /// <summary>
@@ -86,39 +115,61 @@ namespace AnimGenerator
         /// </summary>
         private int i = 0;
 
+        /// <summary>
+        /// 当前解析到第几个文件了
+        /// </summary>
+        private int fileIndex = 0; 
+
         void Update()
         {
-            while (i < keyFrameList.keyFrames.Count && Time.time > keyFrameList.keyFrames[i].timestamp)
+            if (interpreterMode == EInterpreterMode.Display)
             {
-                KeyFrame frame = keyFrameList.keyFrames[i];
-                switch (frame.action)
+                while (i < keyFrameList.keyFrames.Count && Time.time - starttime > keyFrameList.keyFrames[i].timestamp)
                 {
-                    case 0: // 出现
-                        Appear(frame);
-                        break;
-                    case 1: // 消失
-                        DisAppear(frame);
-                        break;
-                    case 2: // 移动和动画
-                        Move(frame);
-                        break;
-                    case 3: // 播放音乐
-                        Audio(frame);
-                        break;
-                    case 4: // 更换背景图片
-                        Background(frame);
-                        break;
-                    case 5:
-                        ShowSubtitle(frame);
-                        break;
-                    case 6:
-                        ShowDialog(frame);
-                        break;
-                    default:
-                        Debug.LogError($"Unexpected action type {frame.action} at timestamp {frame.timestamp}");
-                        break;
+                    KeyFrame frame = keyFrameList.keyFrames[i];
+                    switch (frame.action)
+                    {
+                        case 0: // 出现
+                            Appear(frame);
+                            break;
+                        case 1: // 消失
+                            DisAppear(frame);
+                            break;
+                        case 2: // 移动和动画
+                            Move(frame);
+                            break;
+                        case 3: // 播放音乐
+                            Audio(frame);
+                            break;
+                        case 4: // 更换背景图片
+                            Background(frame);
+                            break;
+                        case 5:
+                            ShowSubtitle(frame);
+                            break;
+                        case 6:
+                            ShowDialog(frame);
+                            break;
+                        default:
+                            Debug.LogError($"Unexpected action type {frame.action} at timestamp {frame.timestamp}");
+                            break;
+                    }
+                    ++i;
                 }
-                ++i;
+                if (i >= keyFrameList.keyFrames.Count)
+                {
+                    interpreterMode = EInterpreterMode.Wait;
+                }
+            }
+            else if (interpreterMode == EInterpreterMode.Wait)
+            {
+                // 去找 streamingAssets 里有没有新文件
+                FileInfo[] files = streamingDir.GetFiles();
+
+                if(files.Length > fileIndex)
+                {
+                    StartDisplay($"{Application.streamingAssetsPath}/{JSON_FILE_NAME}{fileIndex++}.json");
+                }
             }
         }
 
@@ -189,7 +240,6 @@ namespace AnimGenerator
             }
             StartCoroutine(Animate(frame));
         }
-
 
         private const bool IS_3D_MODE = false;
         private IEnumerator Animate(KeyFrame frame)
